@@ -4,9 +4,9 @@ from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.model_selection import GridSearchCV
 from statsmodels.tsa.arima.model import ARIMA
 import itertools
-class ArimaModel:
+class arimaModel:
     def __init__(self, df: pd.DataFrame):
-        df.drop(columns=[eg_data.columns[0]],inplace=True)
+        df.drop(columns=[df.columns[0]],inplace=True)
         df.index = pd.to_datetime(df.index)
         self.data = df
         l = len(self.data)
@@ -64,5 +64,5 @@ class ArimaModel:
 if __name__ == "__main__":
     eg_data = pd.read_csv("data/daily/sample_1.csv",index_col="point_timestamp")
     print(eg_data.head(),eg_data.columns[0])
-    arima_model = ArimaModel(eg_data)
+    arima_model = arimaModel(eg_data)
     print(f'ARIMA MAPE error is {arima_model.create_model()}')

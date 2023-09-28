@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_percentage_error
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 import itertools
 
-class ExponentialSmoothingModel:
+class seasonalarimaModel:
     def __init__(self, df: pd.DataFrame):
         df.drop(columns=[df.columns[0]], inplace=True)
         df.index = pd.to_datetime(df.index)
@@ -17,9 +17,8 @@ class ExponentialSmoothingModel:
 
     def create_model(self):
         best_params = self.hyperparameter_optimization()
-        model = ExponentialSmoothing(self.y_train, trend=best_params[0], seasonal=best_params[1],
-                                     seasonal_periods=best_params[2])
-        model_fit = model.fit()
+        model = SARIMAX(self.y_train, order=best_params[:3], seasonal_order=best_params[3:])
+        model_fit = model.fit(disp=False)
         y_pred = model_fit.forecast(steps=len(self.X_test))
         print(f'The best fit parameters were {best_params}')
         return self.mape(y_pred)
@@ -32,26 +31,30 @@ class ExponentialSmoothingModel:
         return MAPE_error
 
     def hyperparameter_optimization(self):
-        trend_options = ['add', 'mul', None]
-        seasonal_options = ['add', 'mul', None]
-        seasonal_periods_options = [None, 12]  # Adjust as needed
 
-        best_mape = float("inf")
+        p_range = range(0, 3)  
+        d_range = range(0, 3)  
+        q_range = range(0, 3)  
+        P_range = range(0, 6)  
+        D_range = range(0, 3)  
+        Q_range = range(0, 3)  
+        seasonal_period = 12  # can be changed
+
+        best_aic = float("inf")
         best_params = None
         ci = 0
 
-        for trend, seasonal, seasonal_periods in itertools.product(trend_options, seasonal_options,
-                                                                   seasonal_periods_options):
+        for p, d, q, P, D, Q in itertools.product(p_range, d_range, q_range, P_range, D_range, Q_range):
             try:
-                model = ExponentialSmoothing(self.y_train, trend=trend, seasonal=seasonal,
-                                             seasonal_periods=seasonal_periods)
-                model_fit = model.fit()
-                y_pred = model_fit.forecast(steps=len(self.X_test))
-                mape = self.mape(y_pred)
+                seasonal_order = (P, D, Q, seasonal_period)
+                order = (p, d, q)
+                model = SARIMAX(self.y_train, order=order, seasonal_order=seasonal_order)
+                results = model.fit(disp=False)
+                aic = results.aic
 
-                if mape < best_mape:
-                    best_mape = mape
-                    best_params = (trend, seasonal, seasonal_periods)
+                if aic < best_aic:
+                    best_aic = aic
+                    best_params = (p, d, q, P, D, Q)
                 ci += 1
             except:
                 print('Exception error')
@@ -64,5 +67,5 @@ class ExponentialSmoothingModel:
 if __name__ == "__main__":
     eg_data = pd.read_csv("data/daily/sample_1.csv", index_col="point_timestamp")
     print(eg_data.head(), eg_data.columns[0])
-    exp_smoothing_model = ExponentialSmoothingModel(eg_data)
-    print(f'Exponential Smoothing MAPE error is {exp_smoothing_model.create_model()}')
+    sarima_model = seasonalarimaModel(eg_data)
+    print(f'Seasonal ARIMA MAPE error is {sarima_model.create_model()}')
