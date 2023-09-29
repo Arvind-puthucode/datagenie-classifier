@@ -6,13 +6,13 @@ import os
 from parameter import Parameters
 from timeSeriesModel import TimeSeriesModel
 from concurrent.futures import ThreadPoolExecutor
-
+import concurrent.futures
 # Path to the data folder
 parent_dir=""
 colab_run=False
 if colab_run==True:
     parent_dir="/content/timeseries/timeseries-classifier"
-main_dir = "/data"
+main_dir = "data"
 
 # Define a function to process a single CSV file
 def process_csv(subfolder, csv_file):
@@ -42,13 +42,23 @@ def train_and_save_classifier():
             for csv_file in csv_files:
                 futures.append(executor.submit(process_csv, subfolder, csv_file))
 
-        # Wait for all processes to finish and collect results
-        for future in futures:
-            params_data.append(future.result())
+        # Process results as they become available
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                params = future.result()
+                if params is not None:
+                    params_data.append(params)
+            except Exception as e:
+                print(f'Error while processing dataset: {str(e)}')
+
+    if not params_data:
+        print('No valid datasets were processed.')
+        return
 
     df = pd.DataFrame(params_data)
     df.to_csv(f'{parent_dir+main_dir}/train_params.csv')
     print("Processing completed.")
+
 
 if __name__ == "__main__":
     train_and_save_classifier()

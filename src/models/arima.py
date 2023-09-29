@@ -5,7 +5,7 @@ from statsmodels.tsa.arima.model import ARIMA
 import itertools
 from joblib import Parallel, delayed
 
-class ARIMAModel:
+class arimaModel:
     def __init__(self, df: pd.DataFrame):
         df.drop(columns=[df.columns[0]], inplace=True)
         df.index = pd.to_datetime(df.index)
@@ -45,7 +45,7 @@ def optimize_params(params, model):
 
 if __name__ == "__main__":
     eg_data = pd.read_csv("data/daily/sample_1.csv", index_col="point_timestamp")
-    arima_model = ARIMAModel(eg_data)
+    arima_model = arimaModel(eg_data)
 
     # Define ranges for p, d, and q
     p_range = range(0, 3)
