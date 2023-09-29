@@ -3,6 +3,11 @@ import importlib
 import pandas as pd
 import concurrent.futures
 
+parent_dir=""
+colab_run=False
+if colab_run==True:
+    parent_dir="/content/timeseries/timeseries-classifier/"
+
 class TimeSeriesModel:
     def __init__(self, data: pd.Series):
         self.data = data
@@ -38,7 +43,7 @@ class TimeSeriesModel:
     def load_model_classes(self):
         model_classes = {}
         models_folder = 'src/models'  # Change this to your models folder
-        for file_name in os.listdir(models_folder):
+        for file_name in os.listdir(parent_dir+models_folder):
            # print(os.listdir(models_folder))
             if file_name.endswith('.py') and file_name != '__init__.py':
                 model_name = file_name[:-3]  # Remove the .py extension
@@ -53,6 +58,6 @@ class TimeSeriesModel:
         return model_classes
 
 if __name__ == "__main__":
-    data = pd.read_csv("data/daily/sample_1.csv", index_col="point_timestamp")
+    data = pd.read_csv(f"{parent_dir}data/daily/sample_1.csv", index_col="point_timestamp")
     t1 = TimeSeriesModel(data)
     print(t1.create_all_models())

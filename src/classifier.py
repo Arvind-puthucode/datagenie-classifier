@@ -5,43 +5,51 @@ import joblib
 import os
 from parameter import Parameters
 from timeSeriesModel import TimeSeriesModel
+from concurrent.futures import ThreadPoolExecutor
+
 # Path to the data folder
-main_dir = "/data/"
+parent_dir=""
+colab_run=False
+if colab_run==True:
+    parent_dir="/content/timeseries/timeseries-classifier"
+main_dir = "/data"
+
+# Define a function to process a single CSV file
+def process_csv(subfolder, csv_file):
+    subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
+    df_name = f'{subfolder}/{csv_file[:-4]}'
+    df = pd.read_csv(os.path.join(subfolder_path, csv_file), index_col=0)
+    df = df.set_index(df.columns[0])
+    df = df.fillna(df.mean())
+    print(f'\nProcessing {df_name}, head: {df.head(1)}')
+
+    p1 = Parameters(df)
+    params = p1.get_params(df)
+    best_model, error_model = TimeSeriesModel(df).create_all_models()
+    params['best_model'] = best_model
+
+    return params
 
 # Define the function for training the classifier and saving it
-
-# Path to the data folder
-main_dir="/data"
-    
 def train_and_save_classifier():
-    params_data=[]
+    params_data = []
     subfolders = ['daily', 'hourly', 'weekly', 'monthly']
-    dfs = {}
-    for subfolder in subfolders:
-        # Get the path to the subfolder
-        subfolder_path = os.path.join(main_dir, subfolder)
-        print('\n sub_path \n',subfolder_path,'\n')
-        csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
-        for csv_file in csv_files:
-            df_name = f'{subfolder}\{csv_file[:-4]}'
-            print(f'\n\n df_name is {df_name}\n\n',)
-            df = pd.read_csv(os.path.join(subfolder_path, csv_file),index_col=0)
-            df=df.set_index(df.columns[0])
-            df= df.fillna(df.mean())
 
-            print(df_name,df.head(1)) 
-            p1=Parameters(df)
-            timeseries = (df)[df.columns[0]]
-            params=p1.get_params(timeseries)
-            best_model,error_model=TimeSeriesModel(df).create_all_models()
-            params['best_model']=best_model
-            params_data.append(params)
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for subfolder in subfolders:
+            subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
+            csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
+            for csv_file in csv_files:
+                futures.append(executor.submit(process_csv, subfolder, csv_file))
+
+        # Wait for all processes to finish and collect results
+        for future in futures:
+            params_data.append(future.result())
 
     df = pd.DataFrame(params_data)
-    df.to_csv(f'{main_dir}/train_params.csv')
-    # Save the trained classifier to a file
-    print(f'Classifier for {subfolder} saved successfully.')
+    df.to_csv(f'{parent_dir+main_dir}/train_params.csv')
+    print("Processing completed.")
 
 if __name__ == "__main__":
     train_and_save_classifier()
-    

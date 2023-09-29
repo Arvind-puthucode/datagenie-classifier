@@ -33,9 +33,9 @@ class arimaModel:
     def hyperparameter_optimization(self):
 
         # Define ranges for p, d, and q
-        p_range = range(0, 6)  # for example
+        p_range = range(0, 3)  # for example
         d_range = range(0, 3)  # for example
-        q_range = range(0, 6)  # for example
+        q_range = range(0, 3)  # for example
 
         best_aic = float("inf")
         best_params = None

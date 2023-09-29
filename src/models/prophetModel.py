@@ -21,7 +21,7 @@ class prophetModel:
         forecast = model.predict(future)
         y_pred = forecast['yhat'].tail(len(self.test_data))
         MAPE_error = self.mape(self.test_data['y'], y_pred)
-        return MAPE_error, y_pred
+        return MAPE_error
 
     def mape(self, y_true, y_pred):
         return mean_absolute_percentage_error(y_true, y_pred) * 100
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     eg_data.index = pd.to_datetime(eg_data.index)
 
     prophet_model = prophetModel(eg_data)
-    mape_error, y_pred = prophet_model.create_model()
+    mape_error= prophet_model.create_model()
     print(f'Prophet MAPE error is {mape_error}')
-    print(f'Predicted values: {y_pred}')
+    

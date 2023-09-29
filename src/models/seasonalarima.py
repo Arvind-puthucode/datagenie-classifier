@@ -32,12 +32,12 @@ class seasonalarimaModel:
 
     def hyperparameter_optimization(self):
 
-        p_range = range(0, 3)  
-        d_range = range(0, 3)  
-        q_range = range(0, 3)  
-        P_range = range(0, 6)  
-        D_range = range(0, 3)  
-        Q_range = range(0, 3)  
+        p_range = range(0, 2)  
+        d_range = range(0, 2)  
+        q_range = range(0, 2)  
+        P_range = range(0, 2)  
+        D_range = range(0, 2)  
+        Q_range = range(0, 2)  
         seasonal_period = 12  # can be changed
 
         best_aic = float("inf")
