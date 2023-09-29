@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from arch import arch_model
 from sklearn.metrics import mean_absolute_percentage_error
-from sklearn.model_selection import GridSearchCV
+import concurrent.futures
 
 class garchModel:
     def __init__(self, df: pd.DataFrame):
@@ -19,7 +19,7 @@ class garchModel:
         model = arch_model(self.y_train, vol='Garch', p=p, q=q)
         model_fit = model.fit(disp='off')
         forecasts = model_fit.forecast(start=len(self.y_train),horizon=len(self.y_test))
-        print(forecasts,model_fit)
+        
         if forecasts.variance.shape[0] == 0:
             # Handle the case where forecasts are empty
             return float('inf')
@@ -38,9 +38,15 @@ class garchModel:
         best_mape = float("inf")
         best_params = None
 
-        for p in p_values:
-            for q in q_values:
-                mape_error = self.create_model(p, q)
+        def compute_mape(p, q):
+            mape_error = self.create_model(p, q)
+            return (p, q, mape_error)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(compute_mape, p, q) for p in p_values for q in q_values]
+
+            for future in concurrent.futures.as_completed(futures):
+                p, q, mape_error = future.result()
                 if mape_error < best_mape:
                     best_mape = mape_error
                     best_params = (p, q)

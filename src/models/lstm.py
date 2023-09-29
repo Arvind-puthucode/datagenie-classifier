@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_percentage_error
 from keras.models import Sequential
-from keras.layers import LSTM, Dense
+from keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
+from keras.callbacks import EarlyStopping
 
 class lstmModel:
     def __init__(self, df: pd.DataFrame):
@@ -16,6 +17,7 @@ class lstmModel:
         limit = int(l * 0.7)
         self.X_train, self.X_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
 
+    
     def create_model(self):
         # Prepare the data
         X_train, y_train = self.prepare_data(self.X_train, self.y_train)
@@ -24,11 +26,15 @@ class lstmModel:
         # Build the LSTM model
         model = Sequential()
         model.add(LSTM(units=100, activation='relu', input_shape=(X_train.shape[1], 1)))
+        model.add(Dropout(0.2))  # Dropout for regularization
         model.add(Dense(units=1))
         model.compile(optimizer='adam', loss='mean_squared_error')
 
+        # Early stopping to prevent overfitting
+        early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1, restore_best_weights=True)
+
         # Train the model
-        model.fit(X_train, y_train, epochs=50, batch_size=32)
+        model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stop])
 
         # Predict using the trained model
         y_pred = model.predict(X_test)
@@ -38,6 +44,7 @@ class lstmModel:
         mape = self.mape(y_pred)
 
         return mape
+
 
     def prepare_data(self, X, y, sequence_length=10):
         # Normalize the data
