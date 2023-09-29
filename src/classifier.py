@@ -19,13 +19,12 @@ def process_csv(subfolder, csv_file):
     subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
     df_name = f'{subfolder}/{csv_file[:-4]}'
     df = pd.read_csv(os.path.join(subfolder_path, csv_file), index_col=0)
-    df = df.set_index(df.columns[0])
-    df = df.fillna(df.mean())
+    df['point_value'].fillna(0, inplace=True)
+    data=pd.read_csv(os.path.join(subfolder_path, csv_file), index_col='point_timestamp')
     print(f'\nProcessing {df_name}, head: {df.head(1)}')
-
     p1 = Parameters(df)
     params = p1.get_params(df)
-    best_model, error_model = TimeSeriesModel(df).create_all_models()
+    best_model, error_model = TimeSeriesModel(data).create_all_models()
     params['best_model'] = best_model
 
     return params
