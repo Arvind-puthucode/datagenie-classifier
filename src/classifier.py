@@ -5,8 +5,7 @@ import joblib
 import os
 from parameter import Parameters
 from timeSeriesModel import TimeSeriesModel
-from concurrent.futures import ThreadPoolExecutor
-import concurrent.futures
+
 # Path to the data folder
 parent_dir=""
 colab_run=False
@@ -32,31 +31,30 @@ def process_csv(subfolder, csv_file):
 # Define the function for training the classifier and saving it
 def train_and_save_classifier():
     params_data = []
-    subfolders = ['daily', 'hourly', 'weekly', 'monthly']
+    subfolders = ['hourly']
 
-    with ThreadPoolExecutor() as executor:
-        futures = []
-        for subfolder in subfolders:
-            subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
-            csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
-            for csv_file in csv_files:
-                futures.append(executor.submit(process_csv, subfolder, csv_file))
-
-        # Process results as they become available
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                params = future.result()
-                if params is not None:
-                    params_data.append(params)
-            except Exception as e:
-                print(f'Error while processing dataset: {str(e)}')
+    for subfolder in subfolders:
+        subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
+        csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
+        for csv_file in csv_files:
+            params = process_csv(subfolder, csv_file)
+            if params is not None:
+                params_data.append(params)
 
     if not params_data:
         print('No valid datasets were processed.')
         return
 
     df = pd.DataFrame(params_data)
-    df.to_csv(f'{parent_dir+main_dir}/train_params.csv')
+    # Check if the file exists
+    csv_file_path = f'{parent_dir+main_dir}/train_params.csv'
+    if os.path.isfile(csv_file_path):
+        # Append to the existing CSV file
+        df.to_csv(csv_file_path, mode='a', header=False, index=False,columns=df.columns)
+    else:
+        # If the file doesn't exist, create a new one
+        df.to_csv(csv_file_path, index=False)
+
     print("Processing completed.")
 
 

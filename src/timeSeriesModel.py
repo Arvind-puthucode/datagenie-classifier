@@ -4,7 +4,7 @@ import pandas as pd
 import concurrent.futures
 
 parent_dir=""
-colab_run=True
+colab_run=False
 if colab_run==True:
     parent_dir="/content/timeseries/timeseries-classifier/"
 

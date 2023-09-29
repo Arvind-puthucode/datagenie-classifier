@@ -71,7 +71,7 @@ class exponentialsmoothingModel:
 
 
 if __name__ == "__main__":
-    eg_data = pd.read_csv("data/daily/sample_1.csv", index_col="point_timestamp")
+    eg_data = pd.read_csv("data/daily/sample_0.csv", index_col="point_timestamp")
     print(eg_data.head(), eg_data.columns[0])
     exp_smoothing_model = exponentialsmoothingModel(eg_data)
     print(f'Exponential Smoothing MAPE error is {exp_smoothing_model.create_model()}')
