@@ -31,7 +31,7 @@ def process_csv(subfolder, csv_file):
 # Define the function for training the classifier and saving it
 def train_and_save_classifier():
     params_data = []
-    subfolders = ['hourly']
+    subfolders = []
 
     for subfolder in subfolders:
         subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
@@ -50,6 +50,7 @@ def train_and_save_classifier():
     csv_file_path = f'{parent_dir+main_dir}/train_params.csv'
     if os.path.isfile(csv_file_path):
         # Append to the existing CSV file
+
         df.to_csv(csv_file_path, mode='a', header=False, index=False,columns=df.columns)
     else:
         # If the file doesn't exist, create a new one

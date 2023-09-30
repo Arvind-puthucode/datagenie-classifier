@@ -45,7 +45,34 @@ class lstmModel:
 
         return mape
 
+    def result_json(self):
+        # Prepare the data
+        self.X_train, self.y_train = self.prepare_data(self.X_train, self.y_train)
+        self.X_test, self.y_test = self.prepare_data(self.X_test, self.y_test)
 
+        # Build the LSTM model
+        model = Sequential()
+        model.add(LSTM(units=100, activation='relu', input_shape=(self.X_train.shape[1], 1)))
+        model.add(Dropout(0.2))  # Dropout for regularization
+        model.add(Dense(units=1))
+        model.compile(optimizer='adam', loss='mean_squared_error')
+
+        # Early stopping to prevent overfitting
+        early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1, restore_best_weights=True)
+
+        # Train the model
+        model.fit(self.X_train, self.y_train, epochs=50, batch_size=32, validation_data=(self.X_test, self.y_test), callbacks=[early_stop])
+
+        # Predict using the trained model
+        y_pred = model.predict(self.X_test)
+        y_pred = self.inverse_transform(y_pred)
+
+        # Calculate MAPE
+        mape = self.mape(y_pred)
+
+        return {"mape":mape,"y_pred":y_pred,"y_test":self.y_test.tolist()}
+
+    
     def prepare_data(self, X, y, sequence_length=10):
         # Normalize the data
         scaler = MinMaxScaler()

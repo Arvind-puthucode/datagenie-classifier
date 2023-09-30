@@ -24,7 +24,17 @@ class exponentialsmoothingModel:
         y_pred = model_fit.forecast(steps=len(self.X_test))
         print(f'The best fit parameters were {best_params}')
         return self.mape(y_pred)
-
+    def result_json(self):
+        best_params = self.parallel_hyperparameter_optimization()
+        model = ExponentialSmoothing(self.y_train, trend=best_params[0], seasonal=best_params[1],
+                                     seasonal_periods=best_params[2])
+        model_fit = model.fit()
+        y_pred = model_fit.forecast(steps=len(self.X_test))
+        
+        print(f'The exps model best fit order was {best_params}')
+        mape_err=self.mape(y_pred)
+        return {"mape":mape_err,"y_pred":y_pred.tolist(),"y_test":self.y_test.tolist()}
+    
     def mape(self, y_pred):
         abs_diffs = np.abs(self.y_test - y_pred)
         pct_diffs = abs_diffs / self.y_test

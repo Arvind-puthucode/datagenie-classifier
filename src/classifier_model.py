@@ -1,52 +1,55 @@
+import os
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
+from sklearn.metrics import accuracy_score
+import joblib
+from sklearn.preprocessing import LabelEncoder
+from sklearn import preprocessing
 
-class ClassifierModel:
-    def __init__(self, data_path):
-        self.data = pd.read_csv(data_path)  # Load the parameters data from CSV
-        self.non_ts_features = ['Trend', 'Seasonality', 'Autocorrelation', 'Stationarity', 'Heteroscedasticity', 'Residual Patterns']
-        self.ts_features = [col for col in self.data.columns if col.startswith('tsfeature')]  # Select columns that start with 'tsfeature'
-
-    def preprocess_data(self):
-        # Identify non-numeric columns and encode them
-        non_numeric_columns = self.data.select_dtypes(exclude=['number']).columns
-        for col in non_numeric_columns:
-            if self.data[col].nunique() == 2:  # Binary categorical column
-                le = LabelEncoder()
-                self.data[col] = le.fit_transform(self.data[col])
-            else:  # Categorical column with more than two categories
-                self.data = pd.concat([self.data, pd.get_dummies(self.data[col], prefix=col)], axis=1)
-                self.data.drop(col, axis=1, inplace=True)
-
-        # Normalize features (excluding best_model column)
-        scaler = MinMaxScaler()
-        self.data[self.data.columns[1:-1]] = scaler.fit_transform(self.data[self.data.columns[1:-1]])
-
+class TimeSeriesClassifier:
+    
+    def __init__(self, data_folder,filename):
+        file_path = os.path.join(data_folder, filename)
+        if os.path.exists(file_path):
+            self.data = pd.read_csv(file_path)
+        else:
+            raise FileNotFoundError(f"File not found: {file_path}")
+        
     def train_classifier(self):
-        # Prepare the training data (features) and labels (best_model)
-        X = self.data[self.non_ts_features + self.ts_features]
-        y = self.data['best_model']
+        # Prepare features (X) and target (y)
+
+        le = preprocessing.LabelEncoder()
+        for i in range(len(self.data.columns)-1):
+            self.data.iloc[:,i] = le.fit_transform(self.data.iloc[:,i])
+        
+        X = self.data.drop('best_model', axis=1)  # Features
+        y = self.data['best_model']  # Target
 
         # Split the data into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+       # print(X_train,y_train)
+        # Train the classifier
+        clf = RandomForestClassifier(random_state=42)
+        clf.fit(X_train, y_train)
 
-        # Train a RandomForestClassifier
-        classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-        classifier.fit(X_train, y_train)
+        # Predict on the test set
+        y_pred = clf.predict(X_test)
 
-        # Test the classifier
-        y_pred = classifier.predict(X_test)
-
-        # Evaluate the classifier
+        # Calculate accuracy
+        print(y_pred,y_test)
         accuracy = accuracy_score(y_test, y_pred)
-        print("Accuracy:", accuracy)
-        print("Classification Report:")
-        print(classification_report(y_test, y_pred))
+        print('Accuracy:', accuracy)
 
+        # Save the trained classifier
+        joblib.dump(clf, 'trained_classifier.joblib')
+
+    
 if __name__ == "__main__":
-    model = ClassifierModel("data/train_params.csv")  # Adjust the path
-    model.preprocess_data()
-    model.train_classifier()
+    data_folder = "data"  # Update this with your actual data folder
+    classifier_filename = "classifier.pkl"  # Update with desired classifier file name
+
+    # Assuming train_params.csv contains the training data with 'best_model' as the target
+    classifier = TimeSeriesClassifier(data_folder,"train_params.csv")
+    trained_classifier = classifier.train_classifier()
+    

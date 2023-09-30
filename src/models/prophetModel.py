@@ -22,7 +22,14 @@ class prophetModel:
         y_pred = forecast['yhat'].tail(len(self.test_data))
         MAPE_error = self.mape(self.test_data['y'], y_pred)
         return MAPE_error
-
+    def result_json(self):
+        model = Prophet()
+        model.fit(self.train_data)
+        future = model.make_future_dataframe(periods=len(self.test_data))
+        forecast = model.predict(future)
+        y_pred = forecast['yhat'].tail(len(self.test_data))
+        MAPE_error = self.mape(self.test_data['y'], y_pred)
+        return  {"mape":MAPE_error,"y_pred":y_pred,"y_test":list(self.test_data)}
     def mape(self, y_true, y_pred):
         return mean_absolute_percentage_error(y_true, y_pred) * 100
 
