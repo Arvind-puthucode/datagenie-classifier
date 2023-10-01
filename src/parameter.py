@@ -46,7 +46,6 @@ class Parameters:
         new_params = {}
         manual_params = ParametersManual(data_set=df).get_params()
         tsfresh_features=self.add_missing_tsfresh_features(tsfresh_features)
-
         new_params.update(manual_params)
         new_params.update(tsfresh_features)
         
