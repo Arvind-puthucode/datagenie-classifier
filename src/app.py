@@ -29,9 +29,7 @@ def generate_predictions(data):
     #print(p)
     x=pd.DataFrame(p,index=[0])
     x=obj.rename_ts_columns(x)
-    x.to_csv('whyerror.csv')
-    data.to_csv('howcsvlooks.csv')
-   # print(x.head(),x.describe())
+    print(x.head(),x.describe())
     le = preprocessing.LabelEncoder()
     for i in range(len(x.columns)-1):
         x.iloc[:,i] = le.fit_transform(x.iloc[:,i])
