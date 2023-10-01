@@ -7,6 +7,8 @@ from joblib import Parallel, delayed
 
 class arimaModel:
     def __init__(self, df: pd.DataFrame):
+        self.datearr=df.loc[:,'point_timestamp']
+        
         df.drop(columns=[df.columns[0]], inplace=True)
         df.index = pd.to_datetime(df.index)
         self.data = df
@@ -27,11 +29,21 @@ class arimaModel:
         best_params = self.hyperparameter_optimization()
         model = ARIMA(self.y_train, order=best_params)
         model_fit = model.fit()
+        y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)[0]
         y_pred = model_fit.forecast(steps=len(self.X_test))[0]
+
         print(f'The ARIMA model best fit order was {best_params}')
         mape_err=self.mape(y_pred)
-        return {"mape":mape_err,"y_pred":y_pred,"y_test":self.y_test.tolist()}
+        l1,l2=y_pred_train.tolist(),y_pred.tolist()
+        l1.extend(l2)
+        l3,l4=self.y_train.to_list(),self.y_test.tolist()
+        l3.extend(l4)
+        print(len(l1),len(l3),len(l2),len(l4))
+        return {"mape":mape_err,"point_timestamp":self.datearr.tolist()
+                ,"y_pred":l1,
+                "y_test":l3}
     
+
     def mape(self, y_pred):
         abs_diffs = np.abs(self.y_test - y_pred)
         pct_diffs = abs_diffs / self.y_test

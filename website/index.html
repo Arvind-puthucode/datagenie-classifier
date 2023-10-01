@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Series Predictor</title>
+    <style>
+        /* Add your CSS styling here */
+        #plot {
+            width: 80%;
+            margin: 20px auto;
+        }
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Time Series Predictor</h1>
+    <input type="file" id="fileInput" accept=".json">
+    <button onclick="uploadFile()">Upload File</button>
+
+    <div id="plot"></div>
+
+    <div id="model-info">
+        <h2>Model Information</h2>
+        <p id="model-name"></p>
+        <p id="mape"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

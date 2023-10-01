@@ -25,11 +25,34 @@ class prophetModel:
     def result_json(self):
         model = Prophet()
         model.fit(self.train_data)
-        future = model.make_future_dataframe(periods=len(self.test_data))
-        forecast = model.predict(future)
-        y_pred = forecast['yhat'].tail(len(self.test_data))
-        MAPE_error = self.mape(self.test_data['y'], y_pred)
-        return  {"mape":MAPE_error,"y_pred":y_pred,"y_test":list(self.test_data)}
+                # Make predictions for the training data
+        future_train = model.make_future_dataframe(periods=len(self.train_data))
+        forecast_train = model.predict(future_train)
+        y_pred_train = forecast_train['yhat'].tail(len(self.train_data))
+
+        # Calculate MAPE for the training data
+        MAPE_error_train = self.mape(self.train_data['y'], y_pred_train)
+
+        # Assuming self.test_data contains your test data
+
+        # Make predictions for the test data
+        future_test = model.make_future_dataframe(periods=len(self.test_data))
+        forecast_test = model.predict(future_test)
+        y_pred_test = forecast_test['yhat'].tail(len(self.test_data))
+
+        l1,l2=y_pred_train.tolist(),y_pred_test.tolist()
+        l1.extend(l2)
+        l3,l4=self.train_data.to_list(),self.test_data.tolist()
+        l3.extend(l4)
+        print(len(l1),len(l3),len(l2),len(l4))
+        MAPE_error_test = self.mape(self.test_data['y'], y_pred_test)
+
+        return {"mape":MAPE_error_test,"point_timestamp":self.datearr.tolist()
+                ,"y_pred":l1,
+                "y_test":l3}
+    
+        # Calculate MAPE for the test data
+
     def mape(self, y_true, y_pred):
         return mean_absolute_percentage_error(y_true, y_pred) * 100
 

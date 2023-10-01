@@ -7,7 +7,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 class exponentialsmoothingModel:
     def __init__(self, df: pd.DataFrame):
+        self.datearr=df.loc[:,'point_timestamp']
+        
         df.drop(columns=[df.columns[0]], inplace=True)
+        print(df.head(4))
         df.index = pd.to_datetime(df.index)
         self.data = df
         l = len(self.data)
@@ -29,11 +32,20 @@ class exponentialsmoothingModel:
         model = ExponentialSmoothing(self.y_train, trend=best_params[0], seasonal=best_params[1],
                                      seasonal_periods=best_params[2])
         model_fit = model.fit()
+        y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)
+        
         y_pred = model_fit.forecast(steps=len(self.X_test))
         
         print(f'The exps model best fit order was {best_params}')
         mape_err=self.mape(y_pred)
-        return {"mape":mape_err,"y_pred":y_pred.tolist(),"y_test":self.y_test.tolist()}
+        l1,l2=y_pred_train.tolist(),y_pred.tolist()
+        l1.extend(l2)
+        l3,l4=self.y_train.to_list(),self.y_test.tolist()
+        l3.extend(l4)
+        print(len(l1),len(l3),len(l2),len(l4))
+        return {"mape":mape_err,"point_timestamp":self.datearr.tolist()
+                ,"y_pred":l1,
+                "y_test":l3}
     
     def mape(self, y_pred):
         abs_diffs = np.abs(self.y_test - y_pred)

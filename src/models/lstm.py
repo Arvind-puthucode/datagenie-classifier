@@ -8,6 +8,7 @@ from keras.callbacks import EarlyStopping
 
 class lstmModel:
     def __init__(self, df: pd.DataFrame):
+        self.datearr=df.loc[:,'point_timestamp']
         df.drop(columns=[df.columns[0]], inplace=True)
         df.index = pd.to_datetime(df.index)
         self.data = df
@@ -67,11 +68,21 @@ class lstmModel:
         y_pred = model.predict(self.X_test)
         y_pred = self.inverse_transform(y_pred)
 
+        # Predict using the trained model
+        y_pred_train = model.predict(self.X_train)
+        y_pred_train = self.inverse_transform(y_pred_train)
+        
         # Calculate MAPE
         mape = self.mape(y_pred)
-
-        return {"mape":mape,"y_pred":y_pred,"y_test":self.y_test.tolist()}
-
+        l1,l2=y_pred_train.tolist(),y_pred.tolist()
+        l1.extend(l2)
+        l3,l4=self.y_train.to_list(),self.y_test.tolist()
+        l3.extend(l4)
+        print(len(l1),len(l3),len(l2),len(l4))
+        return {"mape":mape,"point_timestamp":self.datearr.tolist()
+                ,"y_pred":l1,
+                "y_test":l3}
+    
     
     def prepare_data(self, X, y, sequence_length=10):
         # Normalize the data
