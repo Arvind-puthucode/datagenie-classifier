@@ -7,9 +7,10 @@ from joblib import Parallel, delayed
 
 class arimaModel:
     def __init__(self, df: pd.DataFrame):
+        print(df.columns,df.index)
         self.datearr=df.loc[:,'point_timestamp']
         
-        df.drop(columns=[df.columns[0]], inplace=True)
+        #df.drop(columns=[df.columns[0]], inplace=True)
         df.index = pd.to_datetime(df.index)
         self.data = df
         l = len(self.data)
@@ -27,6 +28,7 @@ class arimaModel:
         return self.mape(y_pred)
     def result_json(self):
         best_params = self.hyperparameter_optimization()
+
         model = ARIMA(self.y_train, order=best_params)
         model_fit = model.fit()
         y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)[0]
@@ -65,7 +67,7 @@ class arimaModel:
         )
 
         best_aic = float("inf")
-        best_params = None
+        best_params = (0,0,0)
 
         for aic, params in results:
             if aic < best_aic:
@@ -85,7 +87,7 @@ class arimaModel:
             return float('inf'), (p, d, q)
 
 if __name__ == "__main__":
-    eg_data = pd.read_csv("data/daily/sample_1.csv", index_col="point_timestamp")
+    eg_data = pd.read_csv("data/test/test_4.csv")
     arima_model = arimaModel(eg_data)
     best_params = arima_model.create_model()
     print(f"The best ARIMA model order is {best_params}")

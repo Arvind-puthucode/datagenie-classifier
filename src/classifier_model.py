@@ -6,7 +6,8 @@ from sklearn.metrics import accuracy_score
 import joblib
 from sklearn.preprocessing import LabelEncoder
 from sklearn import preprocessing
-
+from sklearn import tree
+import matplotlib.pyplot as plt
 class TimeSeriesClassifier:
     
     def __init__(self, data_folder,filename):
@@ -15,7 +16,11 @@ class TimeSeriesClassifier:
             self.data = pd.read_csv(file_path)
         else:
             raise FileNotFoundError(f"File not found: {file_path}")
-        
+    def visualize_tree(self, clf, feature_names, class_names):
+        # Visualize the decision tree
+        plt.figure(figsize=(15, 10))
+        tree.plot_tree(clf, filled=True, feature_names=feature_names, class_names=class_names)
+        plt.show()
     def train_classifier(self):
         # Prepare features (X) and target (y)
 
@@ -42,6 +47,11 @@ class TimeSeriesClassifier:
         print('Accuracy:', accuracy)
 
         # Save the trained classifier
+        feature_names = X.columns.tolist()  # Assuming X is your features dataframe
+        class_names = [str(cls) for cls in clf.classes_]  # Convert class labels to strings
+        
+        self.visualize_tree(clf.estimators_[0], feature_names,class_names)
+
         joblib.dump(clf, 'trained_classifier.joblib')
 
     

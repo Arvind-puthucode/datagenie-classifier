@@ -9,8 +9,9 @@ if colab_run==True:
     parent_dir="/content/timeseries/timeseries-classifier/"
 
 class TimeSeriesModel:
-    def __init__(self, data: pd.Series):
-        self.data = data
+    def __init__(self, data: pd.DataFrame):
+        self.data:pd.DataFrame = data    
+        print('data at ts level',self.data.columns,self.data.index)
 
     def create_all_models(self):
         model_classes = self.load_model_classes()
@@ -58,6 +59,6 @@ class TimeSeriesModel:
         return model_classes
 
 if __name__ == "__main__":
-    data = pd.read_csv(f"{parent_dir}data/daily/sample_1.csv", index_col="point_timestamp")
+    data = pd.read_csv(f"{parent_dir}data/daily/sample_1.csv")
     t1 = TimeSeriesModel(data)
     print(t1.create_all_models())
