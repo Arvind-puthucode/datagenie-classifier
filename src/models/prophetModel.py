@@ -43,12 +43,12 @@ class prophetModel:
 
         l1,l2=y_pred_train.tolist(),y_pred_test.tolist()
         l1.extend(l2)
-        l3,l4=self.train_data.to_list(),self.test_data.tolist()
+        l3,l4=self.train_data['y'].values.tolist(),self.test_data['y'].values.tolist()
         l3.extend(l4)
         print(len(l1),len(l3),len(l2),len(l4))
         MAPE_error_test = self.mape(self.test_data['y'], y_pred_test)
 
-        return {"mape":MAPE_error_test,"point_timestamp":self.datearr.tolist()
+        return {"mape":MAPE_error_test,"point_timestamp":self.data['ds'].values.tolist()
                 ,"y_pred":l1,
                 "y_test":l3}
     

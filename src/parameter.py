@@ -29,10 +29,14 @@ class Parameters:
 
             # Flatten the tsfresh_features DataFrame and compute the mean for each feature
             tsfresh_features_mean = tsfresh_features.mean()
+            tsfresh_features_mean_normalized = (tsfresh_features_mean - tsfresh_features_mean.mean()) / tsfresh_features_mean.std()
 
+            # Multiply the normalized tsfeature values by 0.1
+            tsfresh_features_mean_normalized *= 0.1
             i = 0
             for feature_name in tsfresh_features_mean.index:
-                tsfeature_dict[f'tsfeature{i+1}'] = tsfresh_features_mean[feature_name]
+                tsfeature_dict[f'tsfeature{i+1}'] = tsfresh_features_mean_normalized[feature_name]
+                
                 i += 1
 
         except Exception as e:
