@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import joblib
 import json
+
+from sklearn.preprocessing import LabelEncoder,StandardScaler
+
 from parameter import Parameters
 from sklearn import preprocessing
 import importlib
@@ -28,19 +31,27 @@ def generate_predictions(data):
     p=obj.get_params(data)
     #print(p)
     x=pd.DataFrame(p,index=[0])
-    x=obj.rename_ts_columns(x)
-    print(x.head(),x.describe())
+    #x=obj.rename_ts_columns(x)
+    scaler = StandardScaler()
     le = preprocessing.LabelEncoder()
-    for i in range(len(x.columns)-1):
-        x.iloc[:,i] = le.fit_transform(x.iloc[:,i])
+    string_columns = x.select_dtypes(include=['object']).columns
+        # Iterate through string columns and encode them
+    for col in string_columns:
+        print('col',col)    
+        x[col] = le.fit_transform(x[col])
         
-        
+   # x= pd.DataFrame(scaler.fit_transform(x), columns=x.columns)
     classifier = joblib.load('trained_classifier.joblib')
+    print(x.head(),x.columns)
     
+    print("Number of Estimators:", classifier.n_estimators)
+
     best_model=(classifier.predict(x))[0]
+    print(best_model)
     bm_v=best_model
     # Create an object of the best_model class
     module = importlib.import_module(f'models.{best_model}')
+    print('best model is \n\n\n\n',best_model)
     if best_model == 'prophetModel':
         best_model = 'prophetModel'
     else:

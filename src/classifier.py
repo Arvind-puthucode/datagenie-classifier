@@ -40,8 +40,8 @@ def calcualtemodel(df,df_name):
 # Define the function for training the classifier and saving it
 def train_and_save_classifier():
     params_data = []
-    subfolders = ['hourly','monthly']
-    #'','daily','weekly'
+    subfolders = ['daily','weekly']
+    #'','hourly','monthly'
 
     for subfolder in subfolders:
         subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
@@ -71,7 +71,8 @@ def train_and_save_classifier():
 
 def train_generated_data():
     params_data = []
-    subfolders = ['arima','lstm','prophetModel']
+    #'arima','lstm','prophetModel',
+    subfolders = ['exponentialsmoothing']
     global main_dir
     main_dir='data/generated'
     for subfolder in subfolders:
@@ -103,5 +104,5 @@ def train_generated_data():
 
     
 if __name__ == "__main__":
-    #train_and_save_classifier()
+   # train_and_save_classifier()
     train_generated_data()

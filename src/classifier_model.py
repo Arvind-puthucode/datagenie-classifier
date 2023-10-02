@@ -26,21 +26,28 @@ class TimeSeriesClassifier:
         # Visualize the decision tree
         plt.figure(figsize=(15, 10))
         tree.plot_tree(clf, filled=True, feature_names=feature_names, class_names=class_names)
-        plt.show()
+        plt.savefig('images/eg5.jpeg',dpi=300)
+
     def train_classifier(self):
         # Prepare features (X) and target (y)
 
         le = preprocessing.LabelEncoder()
-        for i in range(len(self.data.columns)-1):
-            self.data.iloc[:,i] = le.fit_transform(self.data.iloc[:,i])
+
+        # Identify columns with string data types
         
         X = self.data.drop('best_model', axis=1)  # Features
         y = self.data['best_model']  # Target
-        scaler = StandardScaler()
+
+        string_columns = X.select_dtypes(include=['object']).columns
+        # Iterate through string columns and encode them
+        for col in string_columns:
+            X[col] = le.fit_transform(X[col])
+
+        #scaler = StandardScaler()
         X, y = shuffle(X, y, random_state=42)
 
-        X= pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
-
+#        X= pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+        print(X.head(2))
         # Lower the significance of 'ts' features
         for col in X.columns:
             if col.startswith('ts'):
