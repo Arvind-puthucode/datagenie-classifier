@@ -52,7 +52,7 @@ function uploadFile() {
             const fileContent = event.target.result;
             const jsonData = JSON.parse(fileContent);
 
-            fetch('http://127.0.0.1:5000/predict', {
+            fetch('http://0.0.0.1:5000/predict', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'  // Specify the content type as JSON
