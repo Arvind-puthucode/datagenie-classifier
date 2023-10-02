@@ -15,6 +15,8 @@
 ## Introduction
 Classifier built to identify best time series model that has **REST API** endpoints to drop timeseries.json file in local webapp and get the best time series model fit for it.
 
+I have another readme file explaining why the feature selection is done `src/reason+model.md`
+
 ## Data
 ### Data-Subdivision
 - `daily`: Data generated on a daily basis.
