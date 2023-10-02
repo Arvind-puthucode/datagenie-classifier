@@ -1,13 +1,18 @@
 import os
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
 from sklearn.preprocessing import LabelEncoder,StandardScaler
 from sklearn import preprocessing
 from sklearn import tree
 import matplotlib.pyplot as plt
+from sklearn.utils import shuffle
+from sklearn.utils.class_weight import compute_class_weight
+
+import numpy as np
+
 class TimeSeriesClassifier:
     
     def __init__(self, data_folder,filename,classifier_name):
@@ -32,7 +37,8 @@ class TimeSeriesClassifier:
         X = self.data.drop('best_model', axis=1)  # Features
         y = self.data['best_model']  # Target
         scaler = StandardScaler()
-        
+        X, y = shuffle(X, y, random_state=42)
+
         X= pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
 
         # Lower the significance of 'ts' features
@@ -43,10 +49,14 @@ class TimeSeriesClassifier:
         # Split the data into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         print(len(X_train),len(X_test))
-        # Train the classifier
-        clf = RandomForestClassifier(random_state=42)
+        # Train the classifier with the best parameters
+        clf = RandomForestClassifier(
+            n_estimators=10,
+            max_depth=4,
+            class_weight='balanced',
+            random_state=42
+        )
         clf.fit(X_train, y_train)
-
         # Predict on the test set
         y_pred = clf.predict(X_test)
 
@@ -62,6 +72,7 @@ class TimeSeriesClassifier:
         self.visualize_tree(clf.estimators_[0], feature_names,class_names)
 
         joblib.dump(clf, self.classifiername)
+        print('model_saved')
 
     
 if __name__ == "__main__":

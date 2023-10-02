@@ -10,7 +10,7 @@ class arimaModel:
         print(df.columns,df.index)
         self.datearr=df.loc[:,'point_timestamp']
         
-        #df.drop(columns=[df.columns[0]], inplace=True)
+        df.drop(columns=[df.columns[0]], inplace=True)
         df.index = pd.to_datetime(df.index)
         self.data = df
         l = len(self.data)
@@ -31,11 +31,12 @@ class arimaModel:
 
         model = ARIMA(self.y_train, order=best_params)
         model_fit = model.fit()
-        y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)[0]
-        y_pred = model_fit.forecast(steps=len(self.X_test))[0]
-
+        y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)
+        y_pred = model_fit.forecast(steps=len(self.X_test))
+        print(f'data',self.data)
         print(f'The ARIMA model best fit order was {best_params}')
         mape_err=self.mape(y_pred)
+        print(y_pred_train,y_pred)
         l1,l2=y_pred_train.tolist(),y_pred.tolist()
         l1.extend(l2)
         l3,l4=self.y_train.to_list(),self.y_test.tolist()

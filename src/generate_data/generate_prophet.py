@@ -3,33 +3,31 @@ import pandas as pd
 import os
 
 # Create a directory to store the generated datasets
-if not os.path.exists('data/generated/prophetModel'):
-    os.makedirs('data/generated/prophetModel')
+if not os.path.exists('data/generated'):
+    os.makedirs('data/generated')
 
 # Number of datasets to create
-num_datasets = 20
+num_datasets = 100
 
 # Generate and save each dataset
 for i in range(num_datasets):
-    # Generate a random number of data points for this dataset
-    n = np.random.randint(100, 500)  # Adjust the range as needed
-
     # Generate synthetic time series data suitable for Prophet
     np.random.seed(i)  # Seed with a unique value for each dataset
-    t = np.arange(n)
-    data_prophet = 50 + 10 * np.sin(0.05 * t)  # Sinusoidal pattern
+
+    # Generate synthetic sequential data with daily seasonality and trend
+    n = np.random.randint(100, 500)  # Number of data points
+    t = pd.date_range(start='2020-01-01', periods=n, freq='D')
+    data_points = 50 + 20 * np.sin(2 * np.pi * np.arange(n) / 7) + np.random.normal(scale=5, size=n)  # Daily sinusoidal pattern with noise
 
     # Create a DataFrame with the generated data
     df_prophet = pd.DataFrame({
-        'point_timestamp': pd.date_range(start='2020-01-01', periods=n),
-        'point_value': data_prophet
+        'index': range(n),
+        'point_timestamp': t,
+        'point_value': data_points
     })
-
-    # Add an index (row number) column
-    df_prophet.insert(0, 'index', range(n))
 
     # Save to a CSV file
     filename = f'data/generated/prophetModel/prophet_data_{i + 1}.csv'
     df_prophet.to_csv(filename, index=False)
 
-    print(f'Dataset {i + 1} with {n} data points saved to {filename}')
+    print(f'Dataset {i + 1} saved to {filename}')

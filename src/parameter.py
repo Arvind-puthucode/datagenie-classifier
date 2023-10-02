@@ -45,17 +45,17 @@ class Parameters:
         return tsfeature_dict
 
     def get_params(self, df):
-        tsfeature_dict = self.measure_tsfresh_features(df)
+      #  tsfeature_dict = self.measure_tsfresh_features(df)
 
         # Fill NaN values with 0 for tsfresh features
-        for key, value in tsfeature_dict.items():
-            if pd.isnull(value):
-                tsfeature_dict[key] = 0
+       # for key, value in tsfeature_dict.items():
+        #    if pd.isnull(value):
+         #       tsfeature_dict[key] = 0
 
         new_params = {}
         manual_params = ParametersManual(data_set=df).get_params()
         new_params.update(manual_params)
-        new_params.update(tsfeature_dict)
+        #new_params.update(tsfeature_dict)
 
         return new_params
 

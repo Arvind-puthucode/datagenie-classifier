@@ -40,8 +40,8 @@ def calcualtemodel(df,df_name):
 # Define the function for training the classifier and saving it
 def train_and_save_classifier():
     params_data = []
-    subfolders = ['weekly']
-    #'','hourly','weekly'
+    subfolders = ['hourly','monthly']
+    #'','daily','weekly'
 
     for subfolder in subfolders:
         subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
@@ -71,7 +71,7 @@ def train_and_save_classifier():
 
 def train_generated_data():
     params_data = []
-    subfolders = ['prophetModel']
+    subfolders = ['arima','lstm','prophetModel']
     global main_dir
     main_dir='data/generated'
     for subfolder in subfolders:
@@ -88,6 +88,7 @@ def train_generated_data():
 
     df = pd.DataFrame(params_data)
     # Check if the file exists
+    main_dir='data'
     csv_file_path = f'{parent_dir+main_dir}/train_params.csv'
     if os.path.isfile(csv_file_path):
         # Append to the existing CSV file
