@@ -1,5 +1,5 @@
 # Time Series Classifier
-![Alt text](images/example4.png)
+![image](https://github.com/Arvind-puthucode/datagenie-classifier/assets/62462676/9ed2462e-d6d7-4246-9d72-8e6dcee6c4df)
 
 ## Table of Contents
 1. [Introduction](#introduction)
