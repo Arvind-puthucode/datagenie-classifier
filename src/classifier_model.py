@@ -58,8 +58,8 @@ class TimeSeriesClassifier:
         print(len(X_train),len(X_test))
         # Train the classifier with the best parameters
         clf = RandomForestClassifier(
-            n_estimators=10,
-            max_depth=4,
+            n_estimators=50,
+            max_depth=7,
             class_weight='balanced',
             random_state=42
         )

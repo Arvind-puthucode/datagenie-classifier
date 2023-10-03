@@ -76,7 +76,7 @@ class lstmModel:
         mape = self.mape(y_pred)
         l1,l2=y_pred_train.tolist(),y_pred.tolist()
         l1.extend(l2)
-        l3,l4=self.y_train.to_list(),self.y_test.tolist()
+        l3,l4=self.y_train.tolist(),self.y_test.tolist()
         l3.extend(l4)
         print(len(l1),len(l3),len(l2),len(l4))
         return {"mape":mape,"point_timestamp":self.datearr.tolist()
@@ -106,13 +106,15 @@ class lstmModel:
     def inverse_transform(self, y):
         # Inverse transform the normalized values
         scaler = MinMaxScaler()
-        scaler.fit_transform(self.y_test.values.reshape(-1, 1))
+        scaler.fit_transform(self.y_test.reshape(-1, 1))
         y_inverse = scaler.inverse_transform(y)
         return y_inverse
 
     def mape(self, y_pred):
-        abs_diffs = np.abs(self.y_test.values - y_pred)
-        pct_diffs = abs_diffs / self.y_test.values
+        self.y_test_no_zeros = np.where(self.y_test == 0, 1e-10, self.y_test)
+
+        abs_diffs = np.abs(self.y_test_no_zeros - y_pred)
+        pct_diffs = abs_diffs / self.y_test_no_zeros
         pct_diffs[np.isnan(pct_diffs)] = 0
         MAPE_error = np.mean(pct_diffs) * 100
         return MAPE_error

@@ -15,10 +15,15 @@ main_dir = "data"
 
 # Define a function to process a single CSV file
 def process_csv(subfolder, csv_file):
-    subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
-    df_name = f'{subfolder}/{csv_file[:-4]}'
-    df = pd.read_csv(os.path.join(subfolder_path, csv_file), index_col=0)
-    return df,df_name
+    try:
+        subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
+        df_name = f'{subfolder}/{csv_file[:-4]}'
+        df = pd.read_csv(os.path.join(subfolder_path, csv_file), index_col=0)
+        
+        df['point_value'].fillna(value=0,inplace=True)
+        return df,df_name
+    except:
+        return (None,None)
 def paramsforgenerate(df,df_name,model):
  #   df['point_value'].fillna(0, inplace=True)
     print(f'\nProcessing {df_name}, head: {df.head(1)}')
@@ -29,19 +34,23 @@ def paramsforgenerate(df,df_name,model):
     return params
 
 def calcualtemodel(df,df_name):
-    df['point_value'].fillna(0, inplace=True)
-    print(f'\nProcessing {df_name}, head: {df.head(1)}')
-    p1 = Parameters(df)
-    params = p1.get_params(df)
-    best_model, error_model = TimeSeriesModel(df).create_all_models()
-    params['best_model'] = best_model
+    try:
+        df['point_value'].fillna(0, inplace=True)
+        print(f'\nProcessing {df_name}, head: {df.head(1)}')
+        p1 = Parameters(df)
+        params = p1.get_params(df)
+        best_model, error_model = TimeSeriesModel(df).create_all_models()
+        params['best_model'] = best_model
 
-    return params
+        return params
+    except:
+        print('df no point',df.head())
+
 # Define the function for training the classifier and saving it
 def train_and_save_classifier():
     params_data = []
-    subfolders = ['daily','weekly']
-    #'','hourly','monthly'
+    subfolders = []
+    #'daily','weekly',hourly,'monthly'
 
     for subfolder in subfolders:
         subfolder_path = os.path.join(parent_dir+main_dir, subfolder)
@@ -71,8 +80,9 @@ def train_and_save_classifier():
 
 def train_generated_data():
     params_data = []
-    #'arima','lstm','prophetModel',
+    #'arima','lstm',,'prophetModel'
     subfolders = ['exponentialsmoothing']
+
     global main_dir
     main_dir='data/generated'
     for subfolder in subfolders:
@@ -80,6 +90,8 @@ def train_generated_data():
         csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
         for csv_file in csv_files:
             dfd,dfn = process_csv(subfolder, csv_file)
+            if type(dfd)==None and type(dfn)==None :
+                continue
             params=paramsforgenerate(dfd,dfn,subfolder)
             if params is not None:
                 params_data.append(params)
