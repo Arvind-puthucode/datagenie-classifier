@@ -90,7 +90,7 @@ def train_generated_data():
         csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
         for csv_file in csv_files:
             dfd,dfn = process_csv(subfolder, csv_file)
-            if type(dfd) is None and type(dfn) is None:
+            if dfd is None and dfn is None:
                 continue
             params=paramsforgenerate(dfd,dfn,subfolder)
             if params is not None:

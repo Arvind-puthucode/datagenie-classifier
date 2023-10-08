@@ -85,6 +85,7 @@ class arimaModel:
             aic = results.aic
             return aic, (p, d, q)
         except Exception as e:
+            print(e)
             return float('inf'), (p, d, q)
 
 if __name__ == "__main__":

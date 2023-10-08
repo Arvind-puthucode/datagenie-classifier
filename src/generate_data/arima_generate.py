@@ -15,7 +15,7 @@ for i in range(num_datasets):
     np.random.seed(i)  # Seed with a unique value for each dataset
 
     # Generate synthetic sequential data with an autoregressive pattern
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=5)
     # Generate a random integer between 100 and 500 (inclusive)
     n = rng.integers(100, 501)  # 501 is used to include 500 in the range 
     t = pd.date_range(start='2020-01-01', periods=n)
