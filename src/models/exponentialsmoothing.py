@@ -17,14 +17,14 @@ class exponentialsmoothingModel:
         X = self.data.index
         y = self.data[df.columns[0]]
         limit = int(l * 0.7)
-        self.X_train, self.X_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
+        self.x_train, self.x_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
 
     def create_model(self):
         best_params = self.parallel_hyperparameter_optimization()
         model = ExponentialSmoothing(self.y_train, trend=best_params[0], seasonal=best_params[1],
                                      seasonal_periods=best_params[2])
         model_fit = model.fit()
-        y_pred = model_fit.forecast(steps=len(self.X_test))
+        y_pred = model_fit.forecast(steps=len(self.x_test))
         print(f'The best fit parameters were {best_params}')
         return self.mape(y_pred)
     def result_json(self):
@@ -34,7 +34,7 @@ class exponentialsmoothingModel:
         model_fit = model.fit()
         y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)
         
-        y_pred = model_fit.forecast(steps=len(self.X_test))
+        y_pred = model_fit.forecast(steps=len(self.x_test))
         
         print(f'The exps model best fit order was {best_params}')
         mape_err=self.mape(y_pred)
@@ -67,7 +67,7 @@ class exponentialsmoothingModel:
             try:
                 model = ExponentialSmoothing(self.y_train, trend=trend, seasonal=seasonal, seasonal_periods=seasonal_periods)
                 model_fit = model.fit()
-                y_pred = model_fit.forecast(steps=len(self.X_test))
+                y_pred = model_fit.forecast(steps=len(self.x_test))
                 mape = self.mape(y_pred)
 
                 nonlocal best_mape, best_params, ci

@@ -39,7 +39,7 @@ def calcualtemodel(df,df_name):
         print(f'\nProcessing {df_name}, head: {df.head(1)}')
         p1 = Parameters(df)
         params = p1.get_params(df)
-        best_model, error_model = TimeSeriesModel(df).create_all_models()
+        best_model,_ = TimeSeriesModel(df).create_all_models()
         params['best_model'] = best_model
 
         return params
@@ -90,7 +90,7 @@ def train_generated_data():
         csv_files = [f for f in os.listdir(subfolder_path) if f.endswith('.csv')]
         for csv_file in csv_files:
             dfd,dfn = process_csv(subfolder, csv_file)
-            if type(dfd)==None and type(dfn)==None :
+            if type(dfd) is None and type(dfn) is None:
                 continue
             params=paramsforgenerate(dfd,dfn,subfolder)
             if params is not None:

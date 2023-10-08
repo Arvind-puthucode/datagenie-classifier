@@ -5,8 +5,6 @@ from prophet import Prophet
 
 class prophetModel:
     def __init__(self, df: pd.DataFrame):
-        #df.drop(columns=[df.columns[0]], inplace=True)
-        #df.reset_index(inplace=True)
         df.columns = ['ds', 'y']
         self.data = df
         l = len(self.data)
@@ -21,8 +19,8 @@ class prophetModel:
         future = model.make_future_dataframe(periods=len(self.test_data))
         forecast = model.predict(future)
         y_pred = forecast['yhat'].tail(len(self.test_data))
-        MAPE_error = self.mape(self.test_data['y'], y_pred)
-        return MAPE_error
+        mape_error = self.mape(self.test_data['y'], y_pred)
+        return mape_error
     def result_json(self):
         model = Prophet()
         model.fit(self.train_data)
@@ -32,7 +30,6 @@ class prophetModel:
         y_pred_train = forecast_train['yhat'].tail(len(self.train_data))
 
         # Calculate MAPE for the training data
-        MAPE_error_train = self.mape(self.train_data['y'], y_pred_train)
 
         # Assuming self.test_data contains your test data
 
@@ -46,9 +43,9 @@ class prophetModel:
         l3,l4=self.train_data['y'].values.tolist(),self.test_data['y'].values.tolist()
         l3.extend(l4)
         print(len(l1),len(l3),len(l2),len(l4))
-        MAPE_error_test = self.mape(self.test_data['y'], y_pred_test)
+        mape_error_test = self.mape(self.test_data['y'], y_pred_test)
 
-        return {"mape":MAPE_error_test,"point_timestamp":self.data['ds'].values.tolist()
+        return {"mape":mape_error_test,"point_timestamp":self.data['ds'].values.tolist()
                 ,"y_pred":l1,
                 "y_test":l3}
     

@@ -1,10 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 import pandas as pd
-import numpy as np
 import joblib
 import json
 
-from sklearn.preprocessing import LabelEncoder,StandardScaler
 
 from parameter import Parameters
 from sklearn import preprocessing
@@ -29,10 +27,7 @@ def generate_predictions(data):
     # Predict using the loaded classifier for all models
     obj=Parameters(data)
     p=obj.get_params(data)
-    #print(p)
     x=pd.DataFrame(p,index=[0])
-    #x=obj.rename_ts_columns(x)
-    scaler = StandardScaler()
     le = preprocessing.LabelEncoder()
     string_columns = x.select_dtypes(include=['object']).columns
         # Iterate through string columns and encode them
@@ -40,7 +35,6 @@ def generate_predictions(data):
         print('col',col)    
         x[col] = le.fit_transform(x[col])
         
-   # x= pd.DataFrame(scaler.fit_transform(x), columns=x.columns)
     classifier = joblib.load('trained_classifier.joblib')
     print(x.head(),x.columns)
     
@@ -100,11 +94,6 @@ def predict():
     except Exception as e:
         logging.exception('An error occurred during prediction')
         return jsonify({"error": str(e)}), 500
-"""
-@app.route('/')
-def home():
-    return render_template('index.html')
-"""
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

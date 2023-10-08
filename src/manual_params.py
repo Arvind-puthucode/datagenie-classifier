@@ -170,7 +170,7 @@ class ParametersManual:
             'Historical Behavior': self.measure_historical_behavior(timeseries),
             'Model Complexity': self.measure_model_complexity(timeseries),
             'Data Size and Availability': self.measure_data_size_and_availability(timeseries)
-            # Add more parameters here...
+            
         }
         
         return existing_params

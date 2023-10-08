@@ -17,13 +17,13 @@ class arimaModel:
         X = self.data.index
         y = self.data[df.columns[0]]
         limit = int(l * 0.7)
-        self.X_train, self.X_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
+        self.x_train, self.x_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
 
     def create_model(self):
         best_params = self.hyperparameter_optimization()
         model = ARIMA(self.y_train, order=best_params)
         model_fit = model.fit()
-        y_pred = model_fit.forecast(steps=len(self.X_test))[0]
+        y_pred = model_fit.forecast(steps=len(self.x_test))[0]
         print(f'The ARIMA model best fit order was {best_params}')
         return self.mape(y_pred)
     def result_json(self):
@@ -32,7 +32,7 @@ class arimaModel:
         model = ARIMA(self.y_train, order=best_params)
         model_fit = model.fit()
         y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)
-        y_pred = model_fit.forecast(steps=len(self.X_test))
+        y_pred = model_fit.forecast(steps=len(self.x_test))
         print(f'data',self.data)
         print(f'The ARIMA model best fit order was {best_params}')
         mape_err=self.mape(y_pred)
@@ -51,8 +51,8 @@ class arimaModel:
         abs_diffs = np.abs(self.y_test - y_pred)
         pct_diffs = abs_diffs / self.y_test
         pct_diffs[np.isnan(pct_diffs)] = 0
-        MAPE_error = np.mean(pct_diffs) * 100
-        return MAPE_error
+        mape_error = np.mean(pct_diffs) * 100
+        return mape_error
 
     def hyperparameter_optimization(self):
         p_range = range(0, 3)
@@ -84,7 +84,7 @@ class arimaModel:
             results = model.fit()
             aic = results.aic
             return aic, (p, d, q)
-        except:
+        except Exception as e:
             return float('inf'), (p, d, q)
 
 if __name__ == "__main__":

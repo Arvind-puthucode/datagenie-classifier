@@ -43,10 +43,8 @@ class TimeSeriesClassifier:
         for col in string_columns:
             X[col] = le.fit_transform(X[col])
 
-        #scaler = StandardScaler()
         X, y = shuffle(X, y, random_state=42)
 
-#        X= pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
         print(X.head(2))
         # Lower the significance of 'ts' features
         for col in X.columns:
@@ -54,8 +52,8 @@ class TimeSeriesClassifier:
                 X[col] *= 0.1  # Adjust the multiplier as needed
 
         # Split the data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(len(X_train),len(X_test))
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        print(len(x_train),len(x_test))
         # Train the classifier with the best parameters
         clf = RandomForestClassifier(
             n_estimators=50,
@@ -63,9 +61,9 @@ class TimeSeriesClassifier:
             class_weight='balanced',
             random_state=42
         )
-        clf.fit(X_train, y_train)
+        clf.fit(x_train, y_train)
         # Predict on the test set
-        y_pred = clf.predict(X_test)
+        y_pred = clf.predict(x_test)
 
         # Calculate accuracy
         print(f'ypred:{y_pred}\n ytest:{y_test}')

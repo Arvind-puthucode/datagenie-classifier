@@ -15,9 +15,12 @@ for i in range(num_datasets):
     np.random.seed(i)  # Seed with a unique value for each dataset
 
     # Generate synthetic sequential data with an autoregressive pattern
-    n = np.random.randint(100, 500)  # Number of data points
+    rng = np.random.default_rng()
+    # Generate a random integer between 100 and 500 (inclusive)
+    n = rng.integers(100, 501)  # 501 is used to include 500 in the range 
     t = pd.date_range(start='2020-01-01', periods=n)
-    data_points = 50 + 0.9 * np.arange(n) + np.random.normal(scale=5, size=n)  # Autoregressive pattern with noise
+    random_numbers = rng.normal(scale=5, size=n)
+    data_points = 50 + 0.9 * np.arange(n) + random_numbers  # Autoregressive pattern with noise
 
     # Create a DataFrame with the generated data
     df_arima = pd.DataFrame({

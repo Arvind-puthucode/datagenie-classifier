@@ -16,17 +16,17 @@ class lstmModel:
         X = self.data.index
         y = self.data[df.columns[0]]
         limit = int(l * 0.7)
-        self.X_train, self.X_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
+        self.x_train, self.x_test, self.y_train, self.y_test = X[0:limit], X[limit:], y[0:limit], y[limit:]
 
     
     def create_model(self):
         # Prepare the data
-        X_train, y_train = self.prepare_data(self.X_train, self.y_train)
-        X_test, y_test = self.prepare_data(self.X_test, self.y_test)
+        x_train, y_train = self.prepare_data(self.x_train, self.y_train)
+        x_test, y_test = self.prepare_data(self.x_test, self.y_test)
 
         # Build the LSTM model
         model = Sequential()
-        model.add(LSTM(units=100, activation='relu', input_shape=(X_train.shape[1], 1)))
+        model.add(LSTM(units=100, activation='relu', input_shape=(x_train.shape[1], 1)))
         model.add(Dropout(0.2))  # Dropout for regularization
         model.add(Dense(units=1))
         model.compile(optimizer='adam', loss='mean_squared_error')
@@ -35,10 +35,10 @@ class lstmModel:
         early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1, restore_best_weights=True)
 
         # Train the model
-        model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stop])
+        model.fit(x_train, y_train, epochs=50, batch_size=32, validation_data=(x_test, y_test), callbacks=[early_stop])
 
         # Predict using the trained model
-        y_pred = model.predict(X_test)
+        y_pred = model.predict(x_test)
         y_pred = self.inverse_transform(y_pred)
 
         # Calculate MAPE
@@ -48,12 +48,12 @@ class lstmModel:
 
     def result_json(self):
         # Prepare the data
-        self.X_train, self.y_train = self.prepare_data(self.X_train, self.y_train)
-        self.X_test, self.y_test = self.prepare_data(self.X_test, self.y_test)
+        self.x_train, self.y_train = self.prepare_data(self.x_train, self.y_train)
+        self.x_test, self.y_test = self.prepare_data(self.x_test, self.y_test)
 
         # Build the LSTM model
         model = Sequential()
-        model.add(LSTM(units=100, activation='relu', input_shape=(self.X_train.shape[1], 1)))
+        model.add(LSTM(units=100, activation='relu', input_shape=(self.x_train.shape[1], 1)))
         model.add(Dropout(0.2))  # Dropout for regularization
         model.add(Dense(units=1))
         model.compile(optimizer='adam', loss='mean_squared_error')
@@ -62,14 +62,14 @@ class lstmModel:
         early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1, restore_best_weights=True)
 
         # Train the model
-        model.fit(self.X_train, self.y_train, epochs=50, batch_size=32, validation_data=(self.X_test, self.y_test), callbacks=[early_stop])
+        model.fit(self.x_train, self.y_train, epochs=50, batch_size=32, validation_data=(self.x_test, self.y_test), callbacks=[early_stop])
 
         # Predict using the trained model
-        y_pred = model.predict(self.X_test)
+        y_pred = model.predict(self.x_test)
         y_pred = self.inverse_transform(y_pred)
 
         # Predict using the trained model
-        y_pred_train = model.predict(self.X_train)
+        y_pred_train = model.predict(self.x_train)
         y_pred_train = self.inverse_transform(y_pred_train)
         
         # Calculate MAPE
@@ -91,17 +91,17 @@ class lstmModel:
         y = scaler.fit_transform(y)
 
         # Create sequences for LSTM
-        X_seq, y_seq = [], []
+        x_seq, y_seq = [], []
         for i in range(len(X) - sequence_length):
-            X_seq.append(y[i:i+sequence_length, 0])
+            x_seq.append(y[i:i+sequence_length, 0])
             y_seq.append(y[i+sequence_length, 0])
 
-        X_seq, y_seq = np.array(X_seq), np.array(y_seq)
+        x_seq, y_seq = np.array(x_seq), np.array(y_seq)
 
         # Reshape for LSTM
-        X_seq = np.reshape(X_seq, (X_seq.shape[0], X_seq.shape[1], 1))
+        x_seq = np.reshape(x_seq, (x_seq.shape[0], x_seq.shape[1], 1))
 
-        return X_seq, y_seq
+        return x_seq, y_seq
 
     def inverse_transform(self, y):
         # Inverse transform the normalized values
@@ -116,8 +116,8 @@ class lstmModel:
         abs_diffs = np.abs(self.y_test_no_zeros - y_pred)
         pct_diffs = abs_diffs / self.y_test_no_zeros
         pct_diffs[np.isnan(pct_diffs)] = 0
-        MAPE_error = np.mean(pct_diffs) * 100
-        return MAPE_error
+        mape_error = np.mean(pct_diffs) * 100
+        return mape_error
 
 
 if __name__ == "__main__":
