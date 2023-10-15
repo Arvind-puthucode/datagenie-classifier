@@ -22,7 +22,7 @@ class ARIMAModel:
         model_fit = model.fit()
         y_pred = model_fit.forecast(steps=len(self.x_test))[0]
         print(f'The ARIMA model best fit order was {best_params}')
-        return self.result_json(y_pred)
+        return self.result_json(y_pred,model_fit)
 
     def result_json(self, y_pred,model_fit):
         y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)
