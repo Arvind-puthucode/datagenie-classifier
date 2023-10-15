@@ -24,14 +24,14 @@ class ARIMAModel:
         print(f'The ARIMA model best fit order was {best_params}')
         return self.result_json(y_pred)
 
-    def result_json(self, y_pred):
+    def result_json(self, y_pred,model_fit):
         y_pred_train = model_fit.predict(start=0, end=len(self.y_train) - 1)
-        y_pred = model_fit.forecast(steps=len(self.x_test))
+        y_pred_test = model_fit.forecast(steps=len(self.x_test)) if y_pred is None else y_pred
         print(f'data', self.data)
         print(f'The ARIMA model best fit order was {best_params}')
-        mape_err = self.mape(y_pred)
-        print(y_pred_train, y_pred)
-        l1, l2 = y_pred_train.tolist(), y_pred.tolist()
+        mape_err = self.mape(y_pred_test)
+        print(y_pred_train, y_pred_test)
+        l1, l2 = y_pred_train.tolist(), y_pred_test.tolist()
         l1.extend(l2)
         l3, l4 = self.y_train.to_list(), self.y_test.tolist()
         l3.extend(l4)
